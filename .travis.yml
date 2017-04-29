@@ -1,12 +1,21 @@
 language: go
 sudo: false
 go:
- - 1.5.3
-install:
- - true
+ - 1.7.x
 before_script:
- - go get golang.org/x/tools/cmd/vet
- - go get github.com/kr/godep
+# We aren't changing any code, but imports within the same package are absolute
+- mkdir -p $GOPATH/src/github.com/google
+- ln -s $GOPATH/src/github.com/manics/cadvisor $GOPATH/src/github.com/google/
 script:
- - export PATH=$PATH:$HOME/gopath/bin
- - ./build/presubmit.sh
+- cd $GOPATH/src/github.com/google/cadvisor
+- make
+
+# Travis encryption: https://gist.github.com/kzap/5819745
+deploy:
+  provider: releases
+  api_key:
+    secure: "aM2tilGGFOR6cYH7+dsj+uR3eoh66S98Cz6jyS0A9TnB9DSCI8scqCXsm0TzQAge4ATg+n93cn+4cZc0Myx/qBtdvzrlAvwwsKVn+9Fk00N5bDHL/oSm9vPLXZ04Nud2GO5s/RSBYD6UTyGRPLtuis9YJ8Cova+pkNvBDtCgPG58ttqTS0155lYPQrexV+w3D3JAL9kQU02GJAYbg4QqQtJG0k/5Ml7R9QwuT2IzBlEJmv3YkOGQpLZfImE03EblERqywBb6HuU237zTgyYkh9/R2YAWAUuqtvWGEb0z+lawd2z4Yyr+8RMp3eAv18GPmomV+SLuTBnsUmrtettmhYrKtQXFJr4MXqrTrC6+scCtob2i1cu+FPlVkSVgR+9RRTqcqTrrr1czmzQ7J5kaNIpNbDBSEse40vfgMHv3Vc0pxnkgjZFi3lSJGZnGE+2/rBzd8iq/lm3RliCcCRRGN7bsF/r0/XkMbeLSVJAob5MdJ+Bib5euFkqgunXuf8e7qy8yyihX4LFnJOntrtSoBA1Ml2MloPydkQ4Xl6+PVjW/MnJcnqg/JyZCrYUM0m+6lA20sH79nyn20v93zuOQ5uPTTa5swmiXSmHoPxHVdQbo6LAr7Byf1oTacA6K4VvMPUHCJQTjh4VgGUWQhztC9yPswSucye085nYpMKO+/oc="
+  file: cadvisor
+  skip_cleanup: true
+  on:
+    tags: true
